@@ -61,10 +61,10 @@ func GetCoinBaseScriptByAddress(address string) ([]byte, error) {
 	bytesBuf := bytes.NewBuffer([]byte{})
 	bufWriter := io.Writer(bytesBuf)
 
-	if addrWithCheck[0] == byte(76) || addrWithCheck[0] == byte(140) {
+	if addrWithCheck[0] == byte(48) || addrWithCheck[0] == byte(111) {
 		// p2pkh
-		// mainnet: 76      'X'
-		// testnet: 140     'y'
+		// mainnet: 48
+		// testnet: 111
 		err = serialize.PackByte(bufWriter, script.OP_DUP)
 		if err != nil {
 			return nil, errors.New("pack byte err")
@@ -90,10 +90,11 @@ func GetCoinBaseScriptByAddress(address string) ([]byte, error) {
 		if err != nil {
 			return nil, errors.New("pack byte err")
 		}
-	} else if addrWithCheck[0] == byte(16) || addrWithCheck[0] == byte(19) {
+	} else if addrWithCheck[0] == byte(50) || addrWithCheck[0] == byte(58) ||
+		addrWithCheck[0] == byte(5) || addrWithCheck[0] == byte(196) {
 		// p2sh
-		// mainnet: 16   '7'
-		// testnet: 19   '8' or '9'
+		// mainnet: 50, 5 (derived from btc)
+		// testnet: 58, 196 (derived from btc)
 		err = serialize.PackByte(bufWriter, script.OP_HASH160)
 		if err != nil {
 			return nil, errors.New("pack byte err")
@@ -165,8 +166,7 @@ func PackString(str string) ([]byte, error) {
 const (
 	EXTRANONCE1_SIZE    = 4
 	EXTRANONCE2_SIZE    = 4
-	COINBASE_TX_VERSION = 3
-	COINBASE_TX_TYPE    = 5
+	COINBASE_TX_VERSION = 2
 )
 
 type MasterNodeVout struct {
@@ -194,7 +194,7 @@ func (t *CoinBaseTransaction) _generateCoinB() error {
 	bytesBuf := bytes.NewBuffer([]byte{})
 	writer := io.Writer(bytesBuf)
 
-	nVersion := int32(COINBASE_TX_TYPE)<<16 | int32(COINBASE_TX_VERSION)
+	nVersion := int32(COINBASE_TX_VERSION)
 	err := serialize.PackInt32(writer, nVersion)
 	if err != nil {
 		return err

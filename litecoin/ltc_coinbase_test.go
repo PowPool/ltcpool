@@ -57,6 +57,7 @@ func TestInitialize(t *testing.T) {
 		fmt.Println("vin prevout:", trx.Vin[i].PrevOut)
 		fmt.Println("vin scriptsig:", trx.Vin[i].ScriptSig)
 		fmt.Println("vin sequence:", trx.Vin[i].Sequence)
+		fmt.Println("vin scriptwitness", trx.Vin[i].ScriptWitness)
 	}
 	fmt.Println("trx vout size:", len(trx.Vout))
 	for i := 0; i < len(trx.Vout); i++ {
@@ -81,6 +82,7 @@ func TestRecoverToRawTransaction(t *testing.T) {
 		fmt.Println("vin prevout:", trx.Vin[i].PrevOut)
 		fmt.Println("vin scriptsig:", trx.Vin[i].ScriptSig)
 		fmt.Println("vin sequence:", trx.Vin[i].Sequence)
+		fmt.Println("vin scriptwitness", trx.Vin[i].ScriptWitness)
 	}
 	fmt.Println("trx vout size:", len(trx.Vout))
 	for i := 0; i < len(trx.Vout); i++ {
