@@ -1,4 +1,4 @@
-package dashcoin
+package litecoin
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"github.com/mutalisk999/bitcoin-lib/src/pubkey"
 	"github.com/mutalisk999/bitcoin-lib/src/script"
 	"github.com/mutalisk999/bitcoin-lib/src/serialize"
+	"github.com/mutalisk999/bitcoin-lib/src/transaction"
 	"github.com/mutalisk999/bitcoin-lib/src/utility"
 	"io"
 	"time"
@@ -173,7 +174,7 @@ type MasterNodeVout struct {
 	VoutScript []byte
 }
 
-type DashCoinBaseTransaction struct {
+type CoinBaseTransaction struct {
 	BlockTime       uint32
 	BlockHeight     uint32
 	RewardValue     int64
@@ -188,7 +189,7 @@ type DashCoinBaseTransaction struct {
 	CoinBaseTx2     []byte
 }
 
-func (t *DashCoinBaseTransaction) _generateCoinB() error {
+func (t *CoinBaseTransaction) _generateCoinB() error {
 	// pack coinb1
 	bytesBuf := bytes.NewBuffer([]byte{})
 	writer := io.Writer(bytesBuf)
@@ -205,7 +206,7 @@ func (t *DashCoinBaseTransaction) _generateCoinB() error {
 		return err
 	}
 
-	var prevOut OutPoint
+	var prevOut transaction.OutPoint
 	err = prevOut.Hash.SetHex("0000000000000000000000000000000000000000000000000000000000000000")
 	if err != nil {
 		return err
@@ -297,7 +298,7 @@ func (t *DashCoinBaseTransaction) _generateCoinB() error {
 	return nil
 }
 
-func (t *DashCoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height uint32, value int64, flags string,
+func (t *CoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height uint32, value int64, flags string,
 	cbPayload string, cbExtras string, masterNodes []rpc.MasterNode) error {
 	t.BlockTime = bTime
 	t.BlockHeight = height
@@ -349,33 +350,33 @@ func (t *DashCoinBaseTransaction) Initialize(cbWallet string, bTime uint32, heig
 	return nil
 }
 
-func (t *DashCoinBaseTransaction) RecoverToDashTransaction(extraNonce1Hex string, extraNonce2Hex string) (DashTransaction, error) {
+func (t *CoinBaseTransaction) RecoverToDashTransaction(extraNonce1Hex string, extraNonce2Hex string) (transaction.Transaction, error) {
 	extraNonce1, err := hex.DecodeString(extraNonce1Hex)
 	if err != nil {
-		return DashTransaction{}, errors.New("decode hex extraNonce1Hex error")
+		return transaction.Transaction{}, errors.New("decode hex extraNonce1Hex error")
 	}
 
 	extraNonce2, err := hex.DecodeString(extraNonce2Hex)
 	if err != nil {
-		return DashTransaction{}, errors.New("decode hex extraNonce2Hex error")
+		return transaction.Transaction{}, errors.New("decode hex extraNonce2Hex error")
 	}
 
 	if len(extraNonce1) != EXTRANONCE1_SIZE {
-		return DashTransaction{}, errors.New("invalid extraNonce1 length")
+		return transaction.Transaction{}, errors.New("invalid extraNonce1 length")
 	}
 
 	if len(extraNonce2) != EXTRANONCE2_SIZE {
-		return DashTransaction{}, errors.New("invalid extraNonce2 length")
+		return transaction.Transaction{}, errors.New("invalid extraNonce2 length")
 	}
 
 	bytesCoinBaseTx := append(append(append(append([]byte{}, t.CoinBaseTx1...), extraNonce1...), extraNonce2...), t.CoinBaseTx2...)
 
 	bytesBuf := bytes.NewBuffer(bytesCoinBaseTx)
 	bufReader := io.Reader(bytesBuf)
-	var dashTx DashTransaction
+	var dashTx transaction.Transaction
 	err = dashTx.UnPack(bufReader)
 	if err != nil {
-		return DashTransaction{}, errors.New("RecoverToDashTransaction error")
+		return transaction.Transaction{}, errors.New("RecoverToDashTransaction error")
 	}
 
 	return dashTx, nil

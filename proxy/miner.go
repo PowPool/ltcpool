@@ -3,10 +3,12 @@ package proxy
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/MiningPool0826/ltcpool/dashcoin"
-	"github.com/MiningPool0826/ltcpool/goX11"
+	"github.com/MiningPool0826/ltcpool/goScrypt"
+	"github.com/MiningPool0826/ltcpool/litecoin"
 	. "github.com/MiningPool0826/ltcpool/util"
 	"github.com/mutalisk999/bitcoin-lib/src/blob"
+	"github.com/mutalisk999/bitcoin-lib/src/block"
+	"github.com/mutalisk999/bitcoin-lib/src/transaction"
 	"io"
 	"math/big"
 	"strconv"
@@ -126,38 +128,38 @@ func (s *ProxyServer) processShare(login, id, eNonce1, ip string, shareDiff int6
 	return false, true
 }
 
-func X11HashVerify(block *Block) bool {
-	bytes1, err := hex.DecodeString(block.coinBase1)
+func X11HashVerify(oBlock *Block) bool {
+	bytes1, err := hex.DecodeString(oBlock.coinBase1)
 	if err != nil {
 		Error.Println("X11HashVerify: hex decode coinBase1 error")
 		return false
 	}
-	bytes2, err := hex.DecodeString(block.extraNonce1)
+	bytes2, err := hex.DecodeString(oBlock.extraNonce1)
 	if err != nil {
 		Error.Println("X11HashVerify: hex decode extraNonce1 error")
 		return false
 	}
-	bytes3, err := hex.DecodeString(block.extraNonce2)
+	bytes3, err := hex.DecodeString(oBlock.extraNonce2)
 	if err != nil {
 		Error.Println("X11HashVerify: hex decode extraNonce2 error")
 		return false
 	}
-	bytes4, err := hex.DecodeString(block.coinBase2)
+	bytes4, err := hex.DecodeString(oBlock.coinBase2)
 	if err != nil {
 		Error.Println("X11HashVerify: hex decode coinBase2 error")
 		return false
 	}
 
-	Debug.Printf("block.coinBase1: %s", block.coinBase1)
-	Debug.Printf("block.extraNonce1: %s", block.extraNonce1)
-	Debug.Printf("block.extraNonce2: %s", block.extraNonce2)
-	Debug.Printf("block.coinBase2: %s", block.coinBase2)
+	Debug.Printf("block.coinBase1: %s", oBlock.coinBase1)
+	Debug.Printf("block.extraNonce1: %s", oBlock.extraNonce1)
+	Debug.Printf("block.extraNonce2: %s", oBlock.extraNonce2)
+	Debug.Printf("block.coinBase2: %s", oBlock.coinBase2)
 
 	// construct coin base transaction
 	bytesCoinBaseTx := append(append(append(append([]byte{}, bytes1...), bytes2...), bytes3...), bytes4...)
 	bytesBuf := bytes.NewBuffer(bytesCoinBaseTx)
 	bufReader := io.Reader(bytesBuf)
-	var cbTrx dashcoin.DashTransaction
+	var cbTrx transaction.Transaction
 	err = cbTrx.UnPack(bufReader)
 	if err != nil {
 		Error.Println("X11HashVerify: unpack coinBase transaction error")
@@ -172,10 +174,10 @@ func X11HashVerify(block *Block) bool {
 	}
 
 	Debug.Printf("coinBase trx id: %s", cbTrxId.GetHex())
-	Debug.Printf("block.merkleBranch: %v", block.merkleBranch)
+	Debug.Printf("block.merkleBranch: %v", oBlock.merkleBranch)
 
 	// get merkle root hash
-	merkleRootHex, err := dashcoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), block.merkleBranch)
+	merkleRootHex, err := litecoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), oBlock.merkleBranch)
 	if err != nil {
 		Error.Println("X11HashVerify: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
 		return false
@@ -184,9 +186,9 @@ func X11HashVerify(block *Block) bool {
 	Debug.Printf("merkleRootHex: %s", merkleRootHex)
 
 	// construct block header
-	var blockHeader dashcoin.BlockHeader
-	blockHeader.Version = int32(block.nVersion)
-	err = blockHeader.HashPrevBlock.SetHex(block.prevHash)
+	var blockHeader block.BlockHeader
+	blockHeader.Version = int32(oBlock.nVersion)
+	err = blockHeader.HashPrevBlock.SetHex(oBlock.prevHash)
 	if err != nil {
 		Error.Println("X11HashVerify: HashPrevBlock SetHex error")
 		return false
@@ -196,14 +198,14 @@ func X11HashVerify(block *Block) bool {
 		Error.Println("X11HashVerify: HashMerkleRoot SetHex error")
 		return false
 	}
-	nTime, err := strconv.ParseUint(block.sTime, 16, 32)
+	nTime, err := strconv.ParseUint(oBlock.sTime, 16, 32)
 	if err != nil {
 		Error.Println("X11HashVerify: ParseUint sTime error")
 		return false
 	}
 	blockHeader.Time = uint32(nTime)
-	blockHeader.Bits = block.nBits
-	nNonce, err := strconv.ParseUint(block.sNonce, 16, 32)
+	blockHeader.Bits = oBlock.nBits
+	nNonce, err := strconv.ParseUint(oBlock.sNonce, 16, 32)
 	if err != nil {
 		Error.Println("X11HashVerify: ParseUint sNonce error")
 		return false
@@ -228,7 +230,7 @@ func X11HashVerify(block *Block) bool {
 	Debug.Printf("blockHeader Hex: %s", hex.EncodeToString(bytesBuf.Bytes()))
 
 	// calc block header hash
-	bytesRes := goX11.CalcX11Hash(bytesBuf.Bytes())
+	bytesRes := goScrypt.CalcScryptHash(bytesBuf.Bytes())
 	var res blob.Baseblob
 	res.SetData(bytesRes)
 	resHex := res.GetHex()
@@ -237,7 +239,7 @@ func X11HashVerify(block *Block) bool {
 
 	hashDiff := TargetHexToDiff(resHex)
 
-	if hashDiff.Cmp(block.difficulty) > 0 {
+	if hashDiff.Cmp(oBlock.difficulty) > 0 {
 		return true
 	} else {
 		return false

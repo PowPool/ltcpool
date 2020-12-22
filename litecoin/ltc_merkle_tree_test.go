@@ -1,4 +1,4 @@
-package dashcoin
+package litecoin
 
 import (
 	"fmt"

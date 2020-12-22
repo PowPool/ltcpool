@@ -3,7 +3,7 @@ package proxy
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/MiningPool0826/ltcpool/dashcoin"
+	"github.com/MiningPool0826/ltcpool/litecoin"
 	"github.com/mutalisk999/bitcoin-lib/src/utility"
 	"regexp"
 	"strconv"
@@ -32,7 +32,7 @@ func (s *ProxyServer) handleSubscribeRPC(cs *Session) (interface{}, *ErrorReply)
 	setDiff := []string{"mining.set_difficulty", cs.sid}
 	notify := []string{"mining.notify", cs.sid}
 	l := []interface{}{setDiff, notify}
-	reply := []interface{}{l, cs.extraNonce1, dashcoin.EXTRANONCE2_SIZE}
+	reply := []interface{}{l, cs.extraNonce1, litecoin.EXTRANONCE2_SIZE}
 
 	return reply, nil
 }

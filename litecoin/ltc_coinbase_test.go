@@ -1,10 +1,11 @@
-package dashcoin
+package litecoin
 
 import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
 	"github.com/MiningPool0826/ltcpool/rpc"
+	"github.com/mutalisk999/bitcoin-lib/src/transaction"
 	"io"
 	"testing"
 )
@@ -35,7 +36,7 @@ func TestPackString(t *testing.T) {
 }
 
 func TestInitialize(t *testing.T) {
-	var cbtx DashCoinBaseTransaction
+	var cbtx CoinBaseTransaction
 	_ = cbtx.Initialize("XiB2rj7PdESyaxJVsnmjhXf9D9bYJjX7ob", 1607055201, 1827, 18492529212, "",
 		"02002307000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 		"dashpool", []rpc.MasterNode{})
@@ -47,7 +48,7 @@ func TestInitialize(t *testing.T) {
 
 	bytesBuf := bytes.NewBuffer(bytesCoinBaseTx)
 	bufReader := io.Reader(bytesBuf)
-	var trx DashTransaction
+	var trx transaction.Transaction
 	_ = trx.UnPack(bufReader)
 	fmt.Println("trx version:", trx.Version)
 	fmt.Println("trx locktime", trx.LockTime)
@@ -62,13 +63,10 @@ func TestInitialize(t *testing.T) {
 		fmt.Println("vout value", trx.Vout[i].Value)
 		fmt.Println("vout scriptpubkey:", trx.Vout[i].ScriptPubKey)
 	}
-	fmt.Println("trx version16:", trx.Version16)
-	fmt.Println("trx type16:", trx.Type16)
-	fmt.Println("trx extrapayload:", trx.ExtraPayload)
 }
 
 func TestRecoverToDashTransaction(t *testing.T) {
-	var cbtx DashCoinBaseTransaction
+	var cbtx CoinBaseTransaction
 	_ = cbtx.Initialize("XiB2rj7PdESyaxJVsnmjhXf9D9bYJjX7ob", 1607055201, 1827, 18492529212, "",
 		"02002307000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 		"dashpool", []rpc.MasterNode{})
@@ -89,7 +87,4 @@ func TestRecoverToDashTransaction(t *testing.T) {
 		fmt.Println("vout value", trx.Vout[i].Value)
 		fmt.Println("vout scriptpubkey:", trx.Vout[i].ScriptPubKey)
 	}
-	fmt.Println("trx version16:", trx.Version16)
-	fmt.Println("trx type16:", trx.Type16)
-	fmt.Println("trx extrapayload:", trx.ExtraPayload)
 }

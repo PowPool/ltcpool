@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/MiningPool0826/ltcpool/dashcoin"
+	"github.com/MiningPool0826/ltcpool/litecoin"
 	"github.com/mutalisk999/bitcoin-lib/src/bigint"
 	"io"
 	"net"
@@ -191,7 +191,7 @@ func (cs *Session) sendTCPResult(id json.RawMessage, result interface{}) error {
 func (cs *Session) setDifficulty() error {
 	cs.Lock()
 	defer cs.Unlock()
-	genesisWork, err := dashcoin.GetGenesisTargetWork()
+	genesisWork, err := litecoin.GetGenesisTargetWork()
 	if err != nil {
 		return err
 	}

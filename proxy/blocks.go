@@ -3,9 +3,11 @@ package proxy
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/MiningPool0826/ltcpool/dashcoin"
+	"github.com/MiningPool0826/ltcpool/litecoin"
 	"github.com/MiningPool0826/ltcpool/rpc"
 	. "github.com/MiningPool0826/ltcpool/util"
+	"github.com/mutalisk999/bitcoin-lib/src/block"
+	"github.com/mutalisk999/bitcoin-lib/src/transaction"
 	"github.com/mutalisk999/bitcoin-lib/src/utility"
 	"io"
 	"math/big"
@@ -109,7 +111,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 	for _, tx := range blkTplReply.Transactions {
 		newTplJob.TxIdList = append(newTplJob.TxIdList, tx.Hash)
 	}
-	newTplJob.MerkleBranch, err = dashcoin.GetMerkleBranchHexFromTxIdsWithoutCoinBase(newTplJob.TxIdList)
+	newTplJob.MerkleBranch, err = litecoin.GetMerkleBranchHexFromTxIdsWithoutCoinBase(newTplJob.TxIdList)
 	if err != nil {
 		Error.Printf("Error while get merkle branch on %s: %s", rpcClient.Name, err)
 		return
@@ -125,7 +127,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		return
 	}
 
-	var coinBaseTx dashcoin.DashCoinBaseTransaction
+	var coinBaseTx litecoin.CoinBaseTransaction
 	err = coinBaseTx.Initialize(s.config.UpstreamCoinBase, newTplJob.BlkTplJobTime, newTpl.Height, coinBaseReward,
 		blkTplReply.CoinBaseAux.Flags, blkTplReply.CoinbasePayload, s.config.CoinBaseExtraData, blkTplReply.MasterNodes)
 	if err != nil {
@@ -166,23 +168,23 @@ func (s *ProxyServer) fetchPendingBlock() (*rpc.GetBlockTemplateReplyPart, error
 	return reply, nil
 }
 
-func ConstructRawDashBlockHex(block *Block, tplJob *BlockTemplateJob, tpl *BlockTemplate) (string, error) {
-	bytes1, err := hex.DecodeString(block.coinBase1)
+func ConstructRawDashBlockHex(oBlock *Block, tplJob *BlockTemplateJob, tpl *BlockTemplate) (string, error) {
+	bytes1, err := hex.DecodeString(oBlock.coinBase1)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: hex decode coinBase1 error")
 		return "", err
 	}
-	bytes2, err := hex.DecodeString(block.extraNonce1)
+	bytes2, err := hex.DecodeString(oBlock.extraNonce1)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: hex decode extraNonce1 error")
 		return "", err
 	}
-	bytes3, err := hex.DecodeString(block.extraNonce2)
+	bytes3, err := hex.DecodeString(oBlock.extraNonce2)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: hex decode extraNonce2 error")
 		return "", err
 	}
-	bytes4, err := hex.DecodeString(block.coinBase2)
+	bytes4, err := hex.DecodeString(oBlock.coinBase2)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: hex decode coinBase2 error")
 		return "", err
@@ -192,7 +194,7 @@ func ConstructRawDashBlockHex(block *Block, tplJob *BlockTemplateJob, tpl *Block
 	bytesCoinBaseTx := append(append(append(append([]byte{}, bytes1...), bytes2...), bytes3...), bytes4...)
 	bytesBuf := bytes.NewBuffer(bytesCoinBaseTx)
 	bufReader := io.Reader(bytesBuf)
-	var cbTrx dashcoin.DashTransaction
+	var cbTrx transaction.Transaction
 	err = cbTrx.UnPack(bufReader)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: unpack coinBase transaction error")
@@ -207,16 +209,16 @@ func ConstructRawDashBlockHex(block *Block, tplJob *BlockTemplateJob, tpl *Block
 	}
 
 	// get merkle root hash
-	merkleRootHex, err := dashcoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), block.merkleBranch)
+	merkleRootHex, err := litecoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), oBlock.merkleBranch)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
 		return "", err
 	}
 
 	// construct block header
-	var dashBlock dashcoin.Block
-	dashBlock.Header.Version = int32(block.nVersion)
-	err = dashBlock.Header.HashPrevBlock.SetHex(block.prevHash)
+	var dashBlock block.Block
+	dashBlock.Header.Version = int32(oBlock.nVersion)
+	err = dashBlock.Header.HashPrevBlock.SetHex(oBlock.prevHash)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: HashPrevBlock SetHex error")
 		return "", err
@@ -226,14 +228,14 @@ func ConstructRawDashBlockHex(block *Block, tplJob *BlockTemplateJob, tpl *Block
 		Error.Println("ConstructRawDashBlockHex: HashMerkleRoot SetHex error")
 		return "", err
 	}
-	nTime, err := strconv.ParseUint(block.sTime, 16, 32)
+	nTime, err := strconv.ParseUint(oBlock.sTime, 16, 32)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: ParseUint sTime error")
 		return "", err
 	}
 	dashBlock.Header.Time = uint32(nTime)
-	dashBlock.Header.Bits = block.nBits
-	nNonce, err := strconv.ParseUint(block.sNonce, 16, 32)
+	dashBlock.Header.Bits = oBlock.nBits
+	nNonce, err := strconv.ParseUint(oBlock.sNonce, 16, 32)
 	if err != nil {
 		Error.Println("ConstructRawDashBlockHex: ParseUint sNonce error")
 		return "", err
@@ -251,7 +253,7 @@ func ConstructRawDashBlockHex(block *Block, tplJob *BlockTemplateJob, tpl *Block
 			Error.Printf("ConstructRawDashBlockHex: get TxDetailMap key [%s] error", trxId)
 			return "", err
 		}
-		var trx dashcoin.DashTransaction
+		var trx transaction.Transaction
 		err = trx.UnPackFromHex(rawTrxHex)
 		if err != nil {
 			Error.Println("ConstructRawDashBlockHex: trx UnPackFromHex error")
