@@ -3,9 +3,9 @@ package proxy
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/MiningPool0826/dashpool/dashcoin"
-	"github.com/MiningPool0826/dashpool/rpc"
-	. "github.com/MiningPool0826/dashpool/util"
+	"github.com/MiningPool0826/ltcpool/dashcoin"
+	"github.com/MiningPool0826/ltcpool/rpc"
+	. "github.com/MiningPool0826/ltcpool/util"
 	"github.com/mutalisk999/bitcoin-lib/src/utility"
 	"io"
 	"math/big"

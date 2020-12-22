@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MiningPool0826/dashpool/rpc"
-	"github.com/MiningPool0826/dashpool/storage"
-	. "github.com/MiningPool0826/dashpool/util"
+	"github.com/MiningPool0826/ltcpool/rpc"
+	"github.com/MiningPool0826/ltcpool/storage"
+	. "github.com/MiningPool0826/ltcpool/util"
 )
 
 type UnlockerConfig struct {

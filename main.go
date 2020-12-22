@@ -15,11 +15,11 @@ import (
 	"syscall"
 	//"github.com/yvasiyarov/gorelic"
 
-	"github.com/MiningPool0826/dashpool/api"
-	"github.com/MiningPool0826/dashpool/payouts"
-	"github.com/MiningPool0826/dashpool/proxy"
-	"github.com/MiningPool0826/dashpool/storage"
-	. "github.com/MiningPool0826/dashpool/util"
+	"github.com/MiningPool0826/ltcpool/api"
+	"github.com/MiningPool0826/ltcpool/payouts"
+	"github.com/MiningPool0826/ltcpool/proxy"
+	"github.com/MiningPool0826/ltcpool/storage"
+	. "github.com/MiningPool0826/ltcpool/util"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

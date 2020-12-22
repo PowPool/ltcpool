@@ -1,0 +1,3 @@
+[submodule "goScrypt"]
+	path = goScrypt
+	url = https://github.com/mutalisk999/goScrypt

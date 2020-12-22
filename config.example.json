@@ -136,7 +136,7 @@
 		"bgsave": false
 	},
 
-	"coinbaseExtraData": "/dashpool/",
+	"coinbaseExtraData": "/ltcpool/",
 
 	"newrelicEnabled": false,
 	"newrelicName": "MyEtherProxy",

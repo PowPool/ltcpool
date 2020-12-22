@@ -11,8 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/MiningPool0826/dashpool/storage"
-	. "github.com/MiningPool0826/dashpool/util"
+	"github.com/MiningPool0826/ltcpool/storage"
+	. "github.com/MiningPool0826/ltcpool/util"
 )
 
 type ApiConfig struct {
