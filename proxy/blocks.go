@@ -168,25 +168,25 @@ func (s *ProxyServer) fetchPendingBlock() (*rpc.GetBlockTemplateReplyPart, error
 	return reply, nil
 }
 
-func ConstructRawDashBlockHex(oBlock *Block, tplJob *BlockTemplateJob, tpl *BlockTemplate) (string, error) {
+func ConstructRawBlockHex(oBlock *Block, tplJob *BlockTemplateJob, tpl *BlockTemplate) (string, error) {
 	bytes1, err := hex.DecodeString(oBlock.coinBase1)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: hex decode coinBase1 error")
+		Error.Println("ConstructRawBlockHex: hex decode coinBase1 error")
 		return "", err
 	}
 	bytes2, err := hex.DecodeString(oBlock.extraNonce1)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: hex decode extraNonce1 error")
+		Error.Println("ConstructRawBlockHex: hex decode extraNonce1 error")
 		return "", err
 	}
 	bytes3, err := hex.DecodeString(oBlock.extraNonce2)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: hex decode extraNonce2 error")
+		Error.Println("ConstructRawBlockHex: hex decode extraNonce2 error")
 		return "", err
 	}
 	bytes4, err := hex.DecodeString(oBlock.coinBase2)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: hex decode coinBase2 error")
+		Error.Println("ConstructRawBlockHex: hex decode coinBase2 error")
 		return "", err
 	}
 
@@ -197,74 +197,74 @@ func ConstructRawDashBlockHex(oBlock *Block, tplJob *BlockTemplateJob, tpl *Bloc
 	var cbTrx transaction.Transaction
 	err = cbTrx.UnPack(bufReader)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: unpack coinBase transaction error")
+		Error.Println("ConstructRawBlockHex: unpack coinBase transaction error")
 		return "", err
 	}
 
 	// get coin base transaction id
 	cbTrxId, err := cbTrx.CalcTrxId()
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: CalcTrxId error")
+		Error.Println("ConstructRawBlockHex: CalcTrxId error")
 		return "", err
 	}
 
 	// get merkle root hash
 	merkleRootHex, err := litecoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), oBlock.merkleBranch)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
+		Error.Println("ConstructRawBlockHex: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
 		return "", err
 	}
 
 	// construct block header
-	var dashBlock block.Block
-	dashBlock.Header.Version = int32(oBlock.nVersion)
-	err = dashBlock.Header.HashPrevBlock.SetHex(oBlock.prevHash)
+	var rawBlock block.Block
+	rawBlock.Header.Version = int32(oBlock.nVersion)
+	err = rawBlock.Header.HashPrevBlock.SetHex(oBlock.prevHash)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: HashPrevBlock SetHex error")
+		Error.Println("ConstructRawBlockHex: HashPrevBlock SetHex error")
 		return "", err
 	}
-	err = dashBlock.Header.HashMerkleRoot.SetHex(merkleRootHex)
+	err = rawBlock.Header.HashMerkleRoot.SetHex(merkleRootHex)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: HashMerkleRoot SetHex error")
+		Error.Println("ConstructRawBlockHex: HashMerkleRoot SetHex error")
 		return "", err
 	}
 	nTime, err := strconv.ParseUint(oBlock.sTime, 16, 32)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: ParseUint sTime error")
+		Error.Println("ConstructRawBlockHex: ParseUint sTime error")
 		return "", err
 	}
-	dashBlock.Header.Time = uint32(nTime)
-	dashBlock.Header.Bits = oBlock.nBits
+	rawBlock.Header.Time = uint32(nTime)
+	rawBlock.Header.Bits = oBlock.nBits
 	nNonce, err := strconv.ParseUint(oBlock.sNonce, 16, 32)
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: ParseUint sNonce error")
+		Error.Println("ConstructRawBlockHex: ParseUint sNonce error")
 		return "", err
 	}
-	dashBlock.Header.Nonce = uint32(nNonce)
+	rawBlock.Header.Nonce = uint32(nNonce)
 
 	// add transactions
 	// add coin base transaction
-	dashBlock.Vtx = append(dashBlock.Vtx, cbTrx)
+	rawBlock.Vtx = append(rawBlock.Vtx, cbTrx)
 
 	// add other transaction
 	for _, trxId := range tplJob.TxIdList {
 		rawTrxHex, ok := tpl.TxDetailMap[trxId]
 		if !ok {
-			Error.Printf("ConstructRawDashBlockHex: get TxDetailMap key [%s] error", trxId)
+			Error.Printf("ConstructRawBlockHex: get TxDetailMap key [%s] error", trxId)
 			return "", err
 		}
 		var trx transaction.Transaction
 		err = trx.UnPackFromHex(rawTrxHex)
 		if err != nil {
-			Error.Println("ConstructRawDashBlockHex: trx UnPackFromHex error")
+			Error.Println("ConstructRawBlockHex: trx UnPackFromHex error")
 			return "", err
 		}
-		dashBlock.Vtx = append(dashBlock.Vtx, trx)
+		rawBlock.Vtx = append(rawBlock.Vtx, trx)
 	}
 
-	rawBlockHex, err := dashBlock.PackToHex()
+	rawBlockHex, err := rawBlock.PackToHex()
 	if err != nil {
-		Error.Println("ConstructRawDashBlockHex: dashBlock PackToHex error")
+		Error.Println("ConstructRawBlockHex: rawBlock PackToHex error")
 		return "", err
 	}
 

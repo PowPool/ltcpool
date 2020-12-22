@@ -19,7 +19,7 @@ import (
 //var Ether = math.BigPow(10, 18)
 //var Shannon = math.BigPow(10, 9)
 
-var Dash = math.BigPow(10, 8)
+var LTC = math.BigPow(10, 8)
 var Satoshi = math.BigPow(10, 0)
 
 var pow256 = math.BigPow(2, 256)
@@ -33,7 +33,7 @@ var zeroHash = regexp.MustCompile("^0?x?0+$")
 //	return true
 //}
 
-func IsValidDashAddress(address string) bool {
+func IsValidLTCAddress(address string) bool {
 	addrWithCheck, err := base58.Decode(address)
 	if err != nil {
 		return false
@@ -83,7 +83,7 @@ func FormatReward(reward *big.Int) string {
 //}
 
 func FormatRatReward(reward *big.Rat) string {
-	satoshi := new(big.Rat).SetInt(Dash)
+	satoshi := new(big.Rat).SetInt(LTC)
 	reward = reward.Quo(reward, satoshi)
 	return reward.FloatString(8)
 }

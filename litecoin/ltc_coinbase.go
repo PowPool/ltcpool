@@ -350,7 +350,7 @@ func (t *CoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height u
 	return nil
 }
 
-func (t *CoinBaseTransaction) RecoverToDashTransaction(extraNonce1Hex string, extraNonce2Hex string) (transaction.Transaction, error) {
+func (t *CoinBaseTransaction) RecoverToRawTransaction(extraNonce1Hex string, extraNonce2Hex string) (transaction.Transaction, error) {
 	extraNonce1, err := hex.DecodeString(extraNonce1Hex)
 	if err != nil {
 		return transaction.Transaction{}, errors.New("decode hex extraNonce1Hex error")
@@ -373,11 +373,11 @@ func (t *CoinBaseTransaction) RecoverToDashTransaction(extraNonce1Hex string, ex
 
 	bytesBuf := bytes.NewBuffer(bytesCoinBaseTx)
 	bufReader := io.Reader(bytesBuf)
-	var dashTx transaction.Transaction
-	err = dashTx.UnPack(bufReader)
+	var ltcTx transaction.Transaction
+	err = ltcTx.UnPack(bufReader)
 	if err != nil {
-		return transaction.Transaction{}, errors.New("RecoverToDashTransaction error")
+		return transaction.Transaction{}, errors.New("RecoverToRawTransaction error")
 	}
 
-	return dashTx, nil
+	return ltcTx, nil
 }

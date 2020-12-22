@@ -111,8 +111,8 @@ func decryptPoolConfigure(cfg *proxy.Config, passBytes []byte) error {
 	}
 	cfg.UpstreamCoinBase = string(b)
 	// check address
-	if !IsValidDashAddress(cfg.UpstreamCoinBase) {
-		return errors.New("decryptPoolConfigure: IsValidDashAddress")
+	if !IsValidLTCAddress(cfg.UpstreamCoinBase) {
+		return errors.New("decryptPoolConfigure: IsValidLTCAddress")
 	}
 
 	b, err = Ae64Decode(cfg.Redis.PasswordEncrypted, passBytes)

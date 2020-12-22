@@ -43,7 +43,7 @@ func (s *ProxyServer) handleAuthorizeRPC(cs *Session, params []string) (bool, *E
 	}
 
 	l := strings.Split(strings.Trim(params[0], " \t\r\n"), ".")
-	if !IsValidDashAddress(l[0]) {
+	if !IsValidLTCAddress(l[0]) {
 		return false, &ErrorReply{Code: -1, Message: "Invalid authorize"}
 	}
 	if !s.policy.ApplyLoginPolicy(l[0], cs.ip) {

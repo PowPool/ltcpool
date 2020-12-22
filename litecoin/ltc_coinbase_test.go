@@ -39,7 +39,7 @@ func TestInitialize(t *testing.T) {
 	var cbtx CoinBaseTransaction
 	_ = cbtx.Initialize("XiB2rj7PdESyaxJVsnmjhXf9D9bYJjX7ob", 1607055201, 1827, 18492529212, "",
 		"02002307000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-		"dashpool", []rpc.MasterNode{})
+		"ltcpool", []rpc.MasterNode{})
 
 	extraNonce1 := []byte{0x0, 0x0, 0x0, 0x0}
 	extraNonce2 := []byte{0x0, 0x0, 0x0, 0x0}
@@ -65,15 +65,15 @@ func TestInitialize(t *testing.T) {
 	}
 }
 
-func TestRecoverToDashTransaction(t *testing.T) {
+func TestRecoverToRawTransaction(t *testing.T) {
 	var cbtx CoinBaseTransaction
 	_ = cbtx.Initialize("XiB2rj7PdESyaxJVsnmjhXf9D9bYJjX7ob", 1607055201, 1827, 18492529212, "",
 		"02002307000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-		"dashpool", []rpc.MasterNode{})
+		"ltcpool", []rpc.MasterNode{})
 
 	extraNonce1Hex := "00000000"
 	extraNonce2Hex := "00000000"
-	trx, _ := cbtx.RecoverToDashTransaction(extraNonce1Hex, extraNonce2Hex)
+	trx, _ := cbtx.RecoverToRawTransaction(extraNonce1Hex, extraNonce2Hex)
 	fmt.Println("trx version:", trx.Version)
 	fmt.Println("trx locktime", trx.LockTime)
 	fmt.Println("trx vin size:", len(trx.Vin))

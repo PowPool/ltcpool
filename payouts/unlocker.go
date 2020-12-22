@@ -46,7 +46,7 @@ type BlockUnlocker struct {
 }
 
 func NewBlockUnlocker(cfg *UnlockerConfig, backend *storage.RedisClient) *BlockUnlocker {
-	if len(cfg.PoolFeeAddress) != 0 && !IsValidDashAddress(cfg.PoolFeeAddress) {
+	if len(cfg.PoolFeeAddress) != 0 && !IsValidLTCAddress(cfg.PoolFeeAddress) {
 		Error.Fatalln("Invalid poolFeeAddress", cfg.PoolFeeAddress)
 	}
 	//if cfg.Depth < minDepth*2 {

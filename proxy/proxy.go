@@ -282,7 +282,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	vars := mux.Vars(r)
 	login := strings.ToLower(vars["login"])
 
-	if !IsValidDashAddress(login) {
+	if !IsValidLTCAddress(login) {
 		errReply := &ErrorReply{Code: -1, Message: "Invalid login"}
 		_ = cs.sendError(req.Id, errReply)
 		return

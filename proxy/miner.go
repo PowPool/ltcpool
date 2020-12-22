@@ -63,7 +63,7 @@ func (s *ProxyServer) processShare(login, id, eNonce1, ip string, shareDiff int6
 		sNonce:       nonceHex,
 	}
 
-	if !X11HashVerify(&share) {
+	if !ScryptHashVerify(&share) {
 		ms := MakeTimestamp()
 		ts := ms / 1000
 
@@ -75,9 +75,9 @@ func (s *ProxyServer) processShare(login, id, eNonce1, ip string, shareDiff int6
 	}
 
 	paramIn := []string{nonceHex, eNonce1, eNonce2Hex}
-	if X11HashVerify(&block) {
+	if ScryptHashVerify(&block) {
 		// construct new block
-		rawBlockHex, err := ConstructRawDashBlockHex(&block, &h, t)
+		rawBlockHex, err := ConstructRawBlockHex(&block, &h, t)
 		if err != nil {
 			return false, false
 		}
@@ -128,25 +128,25 @@ func (s *ProxyServer) processShare(login, id, eNonce1, ip string, shareDiff int6
 	return false, true
 }
 
-func X11HashVerify(oBlock *Block) bool {
+func ScryptHashVerify(oBlock *Block) bool {
 	bytes1, err := hex.DecodeString(oBlock.coinBase1)
 	if err != nil {
-		Error.Println("X11HashVerify: hex decode coinBase1 error")
+		Error.Println("ScryptHashVerify: hex decode coinBase1 error")
 		return false
 	}
 	bytes2, err := hex.DecodeString(oBlock.extraNonce1)
 	if err != nil {
-		Error.Println("X11HashVerify: hex decode extraNonce1 error")
+		Error.Println("ScryptHashVerify: hex decode extraNonce1 error")
 		return false
 	}
 	bytes3, err := hex.DecodeString(oBlock.extraNonce2)
 	if err != nil {
-		Error.Println("X11HashVerify: hex decode extraNonce2 error")
+		Error.Println("ScryptHashVerify: hex decode extraNonce2 error")
 		return false
 	}
 	bytes4, err := hex.DecodeString(oBlock.coinBase2)
 	if err != nil {
-		Error.Println("X11HashVerify: hex decode coinBase2 error")
+		Error.Println("ScryptHashVerify: hex decode coinBase2 error")
 		return false
 	}
 
@@ -162,14 +162,14 @@ func X11HashVerify(oBlock *Block) bool {
 	var cbTrx transaction.Transaction
 	err = cbTrx.UnPack(bufReader)
 	if err != nil {
-		Error.Println("X11HashVerify: unpack coinBase transaction error")
+		Error.Println("ScryptHashVerify: unpack coinBase transaction error")
 		return false
 	}
 
 	// get coin base transaction id
 	cbTrxId, err := cbTrx.CalcTrxId()
 	if err != nil {
-		Error.Println("X11HashVerify: CalcTrxId error")
+		Error.Println("ScryptHashVerify: CalcTrxId error")
 		return false
 	}
 
@@ -179,7 +179,7 @@ func X11HashVerify(oBlock *Block) bool {
 	// get merkle root hash
 	merkleRootHex, err := litecoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), oBlock.merkleBranch)
 	if err != nil {
-		Error.Println("X11HashVerify: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
+		Error.Println("ScryptHashVerify: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
 		return false
 	}
 
@@ -190,24 +190,24 @@ func X11HashVerify(oBlock *Block) bool {
 	blockHeader.Version = int32(oBlock.nVersion)
 	err = blockHeader.HashPrevBlock.SetHex(oBlock.prevHash)
 	if err != nil {
-		Error.Println("X11HashVerify: HashPrevBlock SetHex error")
+		Error.Println("ScryptHashVerify: HashPrevBlock SetHex error")
 		return false
 	}
 	err = blockHeader.HashMerkleRoot.SetHex(merkleRootHex)
 	if err != nil {
-		Error.Println("X11HashVerify: HashMerkleRoot SetHex error")
+		Error.Println("ScryptHashVerify: HashMerkleRoot SetHex error")
 		return false
 	}
 	nTime, err := strconv.ParseUint(oBlock.sTime, 16, 32)
 	if err != nil {
-		Error.Println("X11HashVerify: ParseUint sTime error")
+		Error.Println("ScryptHashVerify: ParseUint sTime error")
 		return false
 	}
 	blockHeader.Time = uint32(nTime)
 	blockHeader.Bits = oBlock.nBits
 	nNonce, err := strconv.ParseUint(oBlock.sNonce, 16, 32)
 	if err != nil {
-		Error.Println("X11HashVerify: ParseUint sNonce error")
+		Error.Println("ScryptHashVerify: ParseUint sNonce error")
 		return false
 	}
 	blockHeader.Nonce = uint32(nNonce)
@@ -216,7 +216,7 @@ func X11HashVerify(oBlock *Block) bool {
 	bufWriter := io.Writer(bytesBuf)
 	err = blockHeader.Pack(bufWriter)
 	if err != nil {
-		Error.Println("X11HashVerify: blockHeader Pack error")
+		Error.Println("ScryptHashVerify: blockHeader Pack error")
 		return false
 	}
 
