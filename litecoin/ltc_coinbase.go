@@ -174,16 +174,17 @@ type MasterNodeVout struct {
 }
 
 type CoinBaseTransaction struct {
-	BlockTime   uint32
-	BlockHeight uint32
-	RewardValue int64
-	CBExtras    string
-	CBAuxFlag   []byte
-	VinScript1  []byte
-	VinScript2  []byte
-	VoutScript  []byte
-	CoinBaseTx1 []byte
-	CoinBaseTx2 []byte
+	BlockTime                uint32
+	BlockHeight              uint32
+	RewardValue              int64
+	CBExtras                 string
+	CBAuxFlag                []byte
+	VinScript1               []byte
+	VinScript2               []byte
+	VoutScript               []byte
+	CoinBaseTx1              []byte
+	CoinBaseTx2              []byte
+	DefaultWitnessCommitment []byte
 }
 
 func (t *CoinBaseTransaction) _generateCoinB() error {
@@ -243,8 +244,13 @@ func (t *CoinBaseTransaction) _generateCoinB() error {
 		return err
 	}
 
-	// vout count: 1
-	err = serialize.PackCompactSize(writer, uint64(1))
+	// vout count: 1 or 2
+	voutCount := 1
+	if len(t.DefaultWitnessCommitment) != 0 {
+		voutCount = 2
+	}
+
+	err = serialize.PackCompactSize(writer, uint64(voutCount))
 	if err != nil {
 		return err
 	}
@@ -262,6 +268,16 @@ func (t *CoinBaseTransaction) _generateCoinB() error {
 		return err
 	}
 
+	// pack DefaultWitnessCommitment
+	if len(t.DefaultWitnessCommitment) != 0 {
+		var scriptWitnessPubKey script.Script
+		scriptWitnessPubKey.SetScriptBytes(t.DefaultWitnessCommitment)
+		err = scriptWitnessPubKey.Pack(writer)
+		if err != nil {
+			return err
+		}
+	}
+
 	// locktime
 	err = serialize.PackUint32(writer, 0)
 	if err != nil {
@@ -274,7 +290,7 @@ func (t *CoinBaseTransaction) _generateCoinB() error {
 }
 
 func (t *CoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height uint32, value int64, flags string,
-	cbExtras string) error {
+	cbExtras string, defaultWitnessCommitment string) error {
 	t.BlockTime = bTime
 	t.BlockHeight = height
 	t.RewardValue = value
@@ -300,6 +316,19 @@ func (t *CoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height u
 	t.VoutScript, err = GetCoinBaseScript(cbWallet)
 	if err != nil {
 		return errors.New("GetCoinBaseScript cbWallet error")
+	}
+
+	defaultWitnessCommitmentBytes, err := hex.DecodeString(defaultWitnessCommitment)
+	if err != nil {
+		return errors.New("hex decode defaultWitnessCommitment error")
+	}
+
+	if len(defaultWitnessCommitmentBytes) != 32 || len(defaultWitnessCommitmentBytes) != 0 {
+		return errors.New("invalid defaultWitnessCommitmentBytes len")
+	}
+
+	if len(defaultWitnessCommitmentBytes) == 32 {
+		defaultWitnessCommitmentBytes = append([]byte{script.OP_RETURN, byte(0x24), byte(0xaa), byte(0x21), byte(0xa9), byte(0xed)}, defaultWitnessCommitmentBytes...)
 	}
 
 	err = t._generateCoinB()
