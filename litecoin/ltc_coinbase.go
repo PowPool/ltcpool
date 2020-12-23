@@ -323,7 +323,7 @@ func (t *CoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height u
 		return errors.New("hex decode defaultWitnessCommitment error")
 	}
 
-	if len(defaultWitnessCommitmentBytes) != 38 || len(defaultWitnessCommitmentBytes) != 0 {
+	if len(defaultWitnessCommitmentBytes) != 38 && len(defaultWitnessCommitmentBytes) != 0 {
 		return errors.New("invalid defaultWitnessCommitmentBytes len")
 	}
 
