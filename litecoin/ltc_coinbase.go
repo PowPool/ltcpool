@@ -323,12 +323,8 @@ func (t *CoinBaseTransaction) Initialize(cbWallet string, bTime uint32, height u
 		return errors.New("hex decode defaultWitnessCommitment error")
 	}
 
-	if len(defaultWitnessCommitmentBytes) != 32 || len(defaultWitnessCommitmentBytes) != 0 {
+	if len(defaultWitnessCommitmentBytes) != 38 || len(defaultWitnessCommitmentBytes) != 0 {
 		return errors.New("invalid defaultWitnessCommitmentBytes len")
-	}
-
-	if len(defaultWitnessCommitmentBytes) == 32 {
-		defaultWitnessCommitmentBytes = append([]byte{script.OP_RETURN, byte(0x24), byte(0xaa), byte(0x21), byte(0xa9), byte(0xed)}, defaultWitnessCommitmentBytes...)
 	}
 
 	err = t._generateCoinB()
