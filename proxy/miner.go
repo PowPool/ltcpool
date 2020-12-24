@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/hex"
 	"github.com/MiningPool0826/ltcpool/goScrypt"
-	"github.com/MiningPool0826/ltcpool/litecoin"
 	. "github.com/MiningPool0826/ltcpool/util"
 	"github.com/mutalisk999/bitcoin-lib/src/blob"
 	"github.com/mutalisk999/bitcoin-lib/src/block"
 	"github.com/mutalisk999/bitcoin-lib/src/transaction"
+	"github.com/mutalisk999/txid_merkle_tree"
 	"io"
 	"math/big"
 	"strconv"
@@ -177,7 +177,7 @@ func ScryptHashVerify(oBlock *Block) bool {
 	Debug.Printf("block.merkleBranch: %v", oBlock.merkleBranch)
 
 	// get merkle root hash
-	merkleRootHex, err := litecoin.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), oBlock.merkleBranch)
+	merkleRootHex, err := txid_merkle_tree.GetMerkleRootHexFromCoinBaseAndMerkleBranch(cbTrxId.GetHex(), oBlock.merkleBranch)
 	if err != nil {
 		Error.Println("ScryptHashVerify: GetMerkleRootHexFromCoinBaseAndMerkleBranch error")
 		return false
