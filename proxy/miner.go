@@ -3,8 +3,8 @@ package proxy
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/MiningPool0826/ltcpool/goScrypt"
-	. "github.com/MiningPool0826/ltcpool/util"
+	"github.com/PowPool/ltcpool/goScrypt"
+	. "github.com/PowPool/ltcpool/util"
 	"github.com/mutalisk999/bitcoin-lib/src/blob"
 	"github.com/mutalisk999/bitcoin-lib/src/block"
 	"github.com/mutalisk999/bitcoin-lib/src/transaction"

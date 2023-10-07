@@ -1,10 +1,10 @@
 package proxy
 
 import (
-	"github.com/MiningPool0826/ltcpool/api"
-	"github.com/MiningPool0826/ltcpool/payouts"
-	"github.com/MiningPool0826/ltcpool/policy"
-	"github.com/MiningPool0826/ltcpool/storage"
+	"github.com/PowPool/ltcpool/api"
+	"github.com/PowPool/ltcpool/payouts"
+	"github.com/PowPool/ltcpool/policy"
+	"github.com/PowPool/ltcpool/storage"
 )
 
 type Config struct {

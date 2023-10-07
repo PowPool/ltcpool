@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/redis.v3"
 
-	. "github.com/MiningPool0826/ltcpool/util"
+	. "github.com/PowPool/ltcpool/util"
 )
 
 type Config struct {

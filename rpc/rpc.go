@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync"
 
-	. "github.com/MiningPool0826/ltcpool/util"
+	. "github.com/PowPool/ltcpool/util"
 )
 
 type RPCClient struct {

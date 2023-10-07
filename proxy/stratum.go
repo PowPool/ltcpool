@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/MiningPool0826/ltcpool/litecoin"
+	"github.com/PowPool/ltcpool/litecoin"
 	"github.com/mutalisk999/bitcoin-lib/src/bigint"
 	"io"
 	"net"
 	"time"
 
-	. "github.com/MiningPool0826/ltcpool/util"
+	. "github.com/PowPool/ltcpool/util"
 )
 
 const (

@@ -3,14 +3,14 @@ package proxy
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/MiningPool0826/ltcpool/litecoin"
+	"github.com/PowPool/ltcpool/litecoin"
 	"github.com/mutalisk999/bitcoin-lib/src/utility"
 	"regexp"
 	"strconv"
 	"strings"
 
-	//"github.com/MiningPool0826/ltcpool/rpc"
-	. "github.com/MiningPool0826/ltcpool/util"
+	//"github.com/PowPool/ltcpool/rpc"
+	. "github.com/PowPool/ltcpool/util"
 )
 
 var noncePattern = regexp.MustCompile("^[0-9a-f]{8}$")
